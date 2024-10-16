@@ -441,6 +441,7 @@ pub async fn ecdsa_quote_verification(quote: &[u8]) -> Result<()> {
     }
 
     // get collateral
+    debug!("starting tee_qv_get_collateral");
     let collateral = match tee_qv_get_collateral(quote) {
         Ok(c) => {
             debug!("tee_qv_get_collateral successfully returned.");
@@ -465,6 +466,7 @@ pub async fn ecdsa_quote_verification(quote: &[u8]) -> Result<()> {
     };
 
     // call DCAP quote verify library for quote verification
+    println!("quote.rs calling quote verify");
     let (collateral_expiration_status, quote_verification_result) = tee_verify_quote(
         quote,
         collateral.as_ref(),
@@ -473,6 +475,7 @@ pub async fn ecdsa_quote_verification(quote: &[u8]) -> Result<()> {
         p_supplemental_data,
     )
     .map_err(|e| anyhow!("tee_verify_quote failed: {:#04x}", e as u32))?;
+    println!("quote.rs tee_verify_quote successfully returned");
 
     debug!("tee_verify_quote successfully returned.");
 

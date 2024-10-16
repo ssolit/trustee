@@ -183,6 +183,9 @@ impl AttestationService {
         let (report_data, runtime_data_claims) =
             parse_data(runtime_data, &runtime_data_hash_algorithm).context("parse runtime data")?;
 
+        println!("In As lib.rs. about to use the verifier");
+        println!("report_data: {:?}", report_data);
+        
         let report_data = match &report_data {
             Some(data) => ReportData::Value(data),
             None => ReportData::NotProvided,
@@ -196,28 +199,34 @@ impl AttestationService {
             None => InitDataHash::NotProvided,
         };
 
+        println!("here 1");
         let claims_from_tee_evidence = verifier
             .evaluate(&evidence, &report_data, &init_data_hash)
             .await
             .map_err(|e| anyhow!("Verifier evaluate failed: {e:?}"))?;
         info!("{:?} Verifier/endorsement check passed.", tee);
 
+        println!("here 2");
         let flattened_claims = flatten_claims(tee, &claims_from_tee_evidence)?;
         debug!("flattened_claims: {:#?}", flattened_claims);
 
         let tcb_json = serde_json::to_string(&flattened_claims)?;
 
+        println!("here 3");
         let reference_data_map = self
             .get_reference_data(flattened_claims.keys())
             .await
             .map_err(|e| anyhow!("Generate reference data failed: {:?}", e))?;
         debug!("reference_data_map: {:#?}", reference_data_map);
 
+        println!("here 4");
         let evaluation_report = self
             .policy_engine
             .evaluate(reference_data_map.clone(), tcb_json, policy_ids.clone())
             .await
             .map_err(|e| anyhow!("Policy Engine evaluation failed: {e}"))?;
+
+        println!("here 5");
 
         info!("Policy check passed.");
         let policies: Vec<_> = evaluation_report
@@ -230,11 +239,13 @@ impl AttestationService {
             })
             .collect();
 
+        println!("here 6");
         let reference_data_map: HashMap<String, Vec<String>> = reference_data_map
             .into_iter()
             .filter(|it| !it.1.is_empty())
             .collect();
 
+        println!("here 7");
         let token_claims = json!({
             "tee": to_variant_name(&tee)?,
             "evaluation-reports": policies,
@@ -246,12 +257,14 @@ impl AttestationService {
             },
         });
 
+        println!("here 8");
         let attestation_results_token = self.token_broker.issue(token_claims)?;
         info!(
             "Attestation Token ({}) generated.",
             self._config.attestation_token_broker
         );
 
+        println!("here 9, exiting lib.rs evalutate");
         Ok(attestation_results_token)
     }
 

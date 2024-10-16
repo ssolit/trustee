@@ -98,12 +98,23 @@ pub async fn attestation(
 ) -> Result<HttpResponse> {
     info!("Attestation API called.");
 
+    println!("In restful.rs attestation()");
+    println!("example encoding request_data");
+    let thing = URL_SAFE_NO_PAD.encode("eHh4eA==");
+    println!("thing: {thing}");
+    println!("example encoding empty request_data");
+    let thing = URL_SAFE_NO_PAD.encode("");
+    println!("thing: {thing}");
+
+
     let request = request.into_inner();
-    debug!("attestation: {request:#?}");
+    // debug!("attestation: {request:#?}");
 
     let evidence = URL_SAFE_NO_PAD
         .decode(&request.evidence)
         .context("base64 decode evidence")?;
+
+    // println!("decoded evidence: {evidence:#?}");
 
     let tee = to_tee(&request.tee)?;
 

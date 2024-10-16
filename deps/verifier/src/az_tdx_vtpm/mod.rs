@@ -15,8 +15,9 @@ use az_tdx_vtpm::vtpm::Quote as TpmQuote;
 use log::{debug, warn};
 use openssl::pkey::PKey;
 use serde::{Deserialize, Serialize};
+use x509_parser::der_parser::rusticata_macros::debug;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct Evidence {
     tpm_quote: TpmQuote,
     hcl_report: Vec<u8>,
@@ -40,6 +41,11 @@ impl Verifier for AzTdxVtpm {
         expected_report_data: &ReportData,
         expected_init_data_hash: &InitDataHash,
     ) -> Result<TeeEvidenceParsedClaim> {
+        
+        println!("In deps/verifier/az-tdx-vtpm.rs evaluate()");
+        // println!("evidence: {:?}", &evidence);
+        
+
         let ReportData::Value(expected_report_data) = expected_report_data else {
             bail!("unexpected empty report data");
         };
@@ -50,6 +56,8 @@ impl Verifier for AzTdxVtpm {
 
         let evidence = serde_json::from_slice::<Evidence>(evidence)
             .context("Failed to deserialize Azure vTPM TDX evidence")?;
+        println!("In az-tdx-vtpm.rs");
+        
 
         let hcl_report = HclReport::new(evidence.hcl_report)?;
         verify_tpm_signature(&evidence.tpm_quote, &hcl_report)?;
@@ -57,7 +65,7 @@ impl Verifier for AzTdxVtpm {
         verify_tpm_nonce(&evidence.tpm_quote, expected_report_data)?;
 
         verify_pcrs(&evidence.tpm_quote)?;
-
+        
         ecdsa_quote_verification(&evidence.td_quote).await?;
         let td_quote = parse_tdx_quote(&evidence.td_quote)?;
 
