@@ -17,6 +17,7 @@ use anyhow::{anyhow, bail, Context, Result};
 use config::Config;
 use log::{debug, info};
 use rvps::{RvpsApi, RvpsError};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use thiserror::Error;
@@ -28,7 +29,7 @@ pub type TeeClass = String;
 
 /// Tee Claims are the output of the verifier plus some metadata
 /// that identifies the TEE type and class.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct TeeClaims {
     tee: Tee,
     tee_class: TeeClass,
@@ -39,7 +40,7 @@ pub struct TeeClaims {
 
 /// Runtime/Init Data used to check the binding relationship with report data
 /// in Evidence
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Data {
     /// This will be used as the expected runtime/init data to check against
     /// the one inside evidence.
@@ -68,7 +69,7 @@ pub enum ServiceError {
 
 /// A VerificationRequest contains hw evidence that the AS will verify along with some
 /// metadata required for verification.
-///
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VerificationRequest {
     /// TEE evidence bytes. This might not be the raw hardware evidence bytes. Definitions
     /// are in `verifier` crate.
