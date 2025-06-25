@@ -12,12 +12,12 @@ use az_cvm_vtpm::hcl::HclReport;
 use base64::{engine::general_purpose::STANDARD, Engine};
 use derivative::Derivative;
 use kbs_types::Challenge;
+use kbs_types::HashAlgorithm;
 use kbs_types::Tee;
 use reqwest::header::{ACCEPT, CONTENT_TYPE, USER_AGENT};
 use serde::{Deserialize, Serialize};
 use serde_json::{from_value, json};
 use std::result::Result::Ok;
-use kbs_types::{HashAlgorithm};
 
 const SUPPORTED_HASH_ALGORITHMS_JSON_KEY: &str = "supported-hash-algorithms";
 const SELECTED_HASH_ALGORITHM_JSON_KEY: &str = "selected-hash-algorithm";

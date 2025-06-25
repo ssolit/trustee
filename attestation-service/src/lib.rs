@@ -10,7 +10,7 @@ pub mod token;
 
 use crate::token::AttestationTokenBroker;
 
-pub use kbs_types::{Attestation, Tee, HashAlgorithm};
+pub use kbs_types::{Attestation, HashAlgorithm, Tee};
 pub use serde_json::Value;
 
 use anyhow::{anyhow, bail, Context, Result};
